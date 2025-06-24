@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { storageService } from '../../services/storageService';
@@ -102,7 +100,6 @@ const AddTransactionPage: React.FC = () => {
     }
   }, [operationType, categories, categoryId]);
 
-
   const accountOptions: Option[] = accounts.map(acc => ({ value: acc.id, label: `${acc.name} (${acc.currency})` }));
   const categoryOptions: Option[] = categories.filter(c => c.name !== 'Transferencias').map(cat => ({ value: cat.id, label: cat.name }));
   const subcategoryOptions: Option[] = filteredSubcategories.map(subcat => ({ value: subcat.id, label: subcat.name }));
@@ -116,7 +113,6 @@ const AddTransactionPage: React.FC = () => {
         case 'subcategoryId': setSubcategoryId(value); break;
     }
   };
-
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -134,7 +130,6 @@ const AddTransactionPage: React.FC = () => {
         setIsLoading(false);
         return;
     }
-
 
     try {
       const finalDescription = description.trim();
@@ -217,7 +212,6 @@ const AddTransactionPage: React.FC = () => {
   const numInstallmentsVal = parseInt(numberOfInstallments, 10);
   const totalAmountVal = parseFloat(amount || '0');
   const installmentValueDisplay = (numInstallmentsVal > 0 && totalAmountVal > 0) ? (totalAmountVal / numInstallmentsVal).toFixed(2) : '0.00';
-
 
   return (
     <div className="max-w-2xl mx-auto bg-card-bg p-6 md:p-8 rounded-lg shadow-xl text-text-principal">

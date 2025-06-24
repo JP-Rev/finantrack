@@ -64,7 +64,7 @@ const Select: React.FC<SelectProps> = ({
       inputRef.current.focus();
       setHighlightedIndex(-1); 
     }
-  }, [isOpen, searchTerm]); // Removed filteredOptions from deps, search term change already implies filter change
+  }, [isOpen, searchTerm]);
 
    useEffect(() => {
     if (highlightedIndex >= 0 && highlightedIndex < filteredOptions.length && optionsListRef.current) {
@@ -72,7 +72,6 @@ const Select: React.FC<SelectProps> = ({
       optionElement?.scrollIntoView({ block: 'nearest' });
     }
   }, [highlightedIndex, filteredOptions]);
-
 
   const handleSelectOption = (option: Option) => {
     onChange(name, option.value);
@@ -118,7 +117,6 @@ const Select: React.FC<SelectProps> = ({
         // Allow typing to open if closed and start search
         if (!isOpen && e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
             setIsOpen(true);
-            // setSearchTerm(e.key); // Option: directly start search term, or wait for input focus
         }
         break;
     }
