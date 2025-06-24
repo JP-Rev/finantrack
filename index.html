@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinanTrack</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --color-primary: #1B7985;
+      --color-primary-hover: #16606A; /* Darker shade for hover */
+      --color-background-body: #EDF8F9; /* Was secondary */
+      --color-text-principal: #333333;
+      --color-text-secondary: #555555;
+      --color-text-on-primary: #FFFFFF;
+      --color-success: #4CAF50;
+      --color-danger: #F44336;
+      --color-card-background: #FFFFFF;
+      --color-border: #E5E7EB; /* gray-200 */
+      --color-input-bg: #FFFFFF;
+      --color-input-border: #D1D5DB; /* gray-300 */
+      --color-modal-bg: #FFFFFF;
+      --color-sidebar-bg: #FFFFFF;
+    }
+
+    .dark {
+      --color-primary: #D79953; /* New dark theme primary */
+      --color-primary-hover: #B68246; /* Darker shade of new primary */
+      --color-background-body: #121212;
+      --color-text-principal: #E0E0E0;
+      --color-text-secondary: #A0A0A0;
+      --color-text-on-primary: #302D2A; /* Dark theme text on primary */
+      --color-success: #AEABA8; /* Updated dark mode success color for positive numbers */
+      --color-danger: #D79953; /* Updated dark mode danger color for negative numbers (same as primary) */
+      --color-card-background: #1E1E1E;
+      --color-border: #4B5563; /* gray-600 */
+      --color-input-bg: #2D2D2D;
+      --color-input-border: #555555;
+      --color-modal-bg: #1E1E1E;
+      --color-sidebar-bg: #1A1A1A;
+    }
+
+    body {
+      background-color: var(--color-background-body);
+      color: var(--color-text-principal);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+  </style>
+  <script>
+    tailwind.config = {
+      darkMode: 'class', // Enable class-based dark mode
+      theme: {
+        extend: {
+          colors: {
+            primary: 'var(--color-primary)',
+            'primary-hover': 'var(--color-primary-hover)',
+            secondary: 'var(--color-background-body)', // Renamed for clarity vs --color-background-body
+            'text-principal': 'var(--color-text-principal)',
+            'text-secondary': 'var(--color-text-secondary)',
+            'text-on-primary': 'var(--color-text-on-primary)',
+            success: 'var(--color-success)',
+            danger: 'var(--color-danger)',
+            'card-bg': 'var(--color-card-background)',
+            'border-color': 'var(--color-border)',
+            'input-bg': 'var(--color-input-bg)',
+            'input-border': 'var(--color-input-border)',
+            'modal-bg': 'var(--color-modal-bg)',
+            'sidebar-bg': 'var(--color-sidebar-bg)',
+            // Remove old hardcoded values if they conflict
+            // 'dark-bg': '#1C1C1C', // No longer needed directly here
+          }
+        }
+      }
+    }
+  </script>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.6.2",
+    "recharts": "https://esm.sh/recharts@^2.15.3",
+    "@heroicons/react/": "https://esm.sh/@heroicons/react@^2.2.0/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-secondary text-text-principal"> <!-- Este es un comentario HTML -->
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

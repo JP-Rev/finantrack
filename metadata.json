@@ -1,0 +1,6 @@
+{
+  "name": "FinanTrack",
+  "description": "A personal finance tracking application for managing income, expenses, and installment payments. Features offline support and statistics.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
