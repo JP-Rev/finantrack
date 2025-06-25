@@ -35,11 +35,51 @@ const AuthPage: React.FC = () => {
         if (error) throw error;
       }
     } catch (error: any) {
+      console.error('Auth error:', error);
       setError(error.message || 'Ocurrió un error durante la autenticación');
     } finally {
       setLoading(false);
     }
   };
+
+  // Verificar si Supabase está configurado
+  const supabaseConfigured = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+  if (!supabaseConfigured) {
+    return (
+      <div className="min-h-screen bg-secondary flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-primary mb-2">{APP_NAME}</h1>
+            <h2 className="text-2xl font-semibold text-danger">Configuración Requerida</h2>
+          </div>
+
+          <div className="bg-card-bg p-8 rounded-lg shadow-xl">
+            <div className="text-center">
+              <p className="text-text-secondary mb-4">
+                Para usar esta aplicación, necesitas configurar Supabase.
+              </p>
+              <div className="text-left bg-secondary p-4 rounded-md">
+                <p className="text-sm font-mono text-text-secondary mb-2">
+                  Crea un archivo .env con:
+                </p>
+                <pre className="text-xs text-text-principal">
+{`VITE_SUPABASE_URL=tu_url_de_supabase
+VITE_SUPABASE_ANON_KEY=tu_clave_anonima`}
+                </pre>
+              </div>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="mt-4 px-4 py-2 bg-primary text-text-on-primary rounded-md hover:bg-primary-hover"
+              >
+                Verificar Configuración
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-secondary flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">

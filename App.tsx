@@ -19,6 +19,7 @@ import { initializeData } from './services/storageService';
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string>('');
 
   useEffect(() => {
     loadAndApplyInitialTheme();
@@ -26,15 +27,30 @@ const App: React.FC = () => {
     // Verificar sesión actual
     const checkSession = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        setIsAuthenticated(!!session);
+        console.log('Checking session...');
+        const { data: { session }, error } = await supabase.auth.getSession();
         
-        if (session) {
-          // Inicializar datos de ejemplo si es necesario
-          await initializeData();
+        if (error) {
+          console.error('Session check error:', error);
+          setError(`Error de conexión: ${error.message}`);
+          setIsAuthenticated(false);
+        } else {
+          console.log('Session:', session ? 'Found' : 'Not found');
+          setIsAuthenticated(!!session);
+          
+          if (session) {
+            // Inicializar datos de ejemplo si es necesario
+            try {
+              await initializeData();
+            } catch (initError) {
+              console.error('Error initializing data:', initError);
+              // No bloquear la app por errores de inicialización
+            }
+          }
         }
       } catch (error) {
         console.error('Error checking session:', error);
+        setError('Error de conexión con la base de datos');
         setIsAuthenticated(false);
       } finally {
         setIsLoading(false);
@@ -45,11 +61,16 @@ const App: React.FC = () => {
 
     // Escuchar cambios de autenticación
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event, session ? 'Session exists' : 'No session');
       setIsAuthenticated(!!session);
       
       if (session && event === 'SIGNED_IN') {
         // Inicializar datos cuando el usuario se autentica
-        await initializeData();
+        try {
+          await initializeData();
+        } catch (initError) {
+          console.error('Error initializing data on sign in:', initError);
+        }
       }
     });
 
@@ -59,7 +80,30 @@ const App: React.FC = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-secondary flex items-center justify-center">
-        <LoadingSpinner size="lg" />
+        <div className="text-center">
+          <LoadingSpinner size="lg" />
+          <p className="mt-4 text-text-secondary">Cargando aplicación...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-secondary flex items-center justify-center">
+        <div className="text-center bg-card-bg p-8 rounded-lg shadow-xl max-w-md">
+          <h1 className="text-2xl font-bold text-danger mb-4">Error de Conexión</h1>
+          <p className="text-text-secondary mb-4">{error}</p>
+          <p className="text-sm text-text-secondary">
+            Verifica que las variables de entorno de Supabase estén configuradas correctamente.
+          </p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-4 py-2 bg-primary text-text-on-primary rounded-md hover:bg-primary-hover"
+          >
+            Reintentar
+          </button>
+        </div>
       </div>
     );
   }
