@@ -42,14 +42,17 @@ const AddTransactionPage: React.FC = () => {
   useEffect(() => {
     const loadPrerequisites = async () => {
       try {
+        setIsLoading(true);
         const [accs, cats, subcats] = await Promise.all([
           storageService.getAll<Account>(LOCAL_STORAGE_KEYS.ACCOUNTS),
           storageService.getAll<Category>(LOCAL_STORAGE_KEYS.CATEGORIES),
           storageService.getAll<Subcategory>(LOCAL_STORAGE_KEYS.SUBCATEGORIES),
         ]);
+        
         setAccounts(accs);
         setCategories(cats);
         setSubcategories(subcats);
+        
         if (accs.length > 0) {
             setAccountId(accs[0].id);
             setFromAccountId(accs[0].id);
@@ -65,8 +68,10 @@ const AddTransactionPage: React.FC = () => {
              if (defaultCategory) setCategoryId(defaultCategory.id);
         }
       } catch (err) {
+        console.error('Error loading prerequisites:', err);
         setError('Error al cargar cuentas o categorías.');
-        console.error(err);
+      } finally {
+        setIsLoading(false);
       }
     };
     loadPrerequisites();
@@ -190,20 +195,21 @@ const AddTransactionPage: React.FC = () => {
               subcategoryId: (categoryId && operationType === MovementType.EXPENSE) || (categoryId && operationType === MovementType.INCOME && categories.find(c => c.id === categoryId)?.name === 'Salario') ? (subcategoryId || categoryId) : undefined,
             };
             await storageService.add<Movement>(LOCAL_STORAGE_KEYS.MOVEMENTS, singleMovementData);
-        }
-        
-        const currentAccount = accounts.find(a => a.id === accountId);
-        if (currentAccount && !isActualInstallmentPlan) { // Balance is updated by individual installment movements if it's a plan
-            const newBalance = operationType === MovementType.INCOME 
-            ? currentAccount.balance + numericAmount 
-            : currentAccount.balance - numericAmount;
-            await storageService.update<Account>(LOCAL_STORAGE_KEYS.ACCOUNTS, {...currentAccount, balance: newBalance});
+            
+            // Actualizar saldo de la cuenta
+            const currentAccount = accounts.find(a => a.id === accountId);
+            if (currentAccount) {
+                const newBalance = operationType === MovementType.INCOME 
+                ? currentAccount.balance + numericAmount 
+                : currentAccount.balance - numericAmount;
+                await storageService.update<Account>(LOCAL_STORAGE_KEYS.ACCOUNTS, {...currentAccount, balance: newBalance});
+            }
         }
       }
       navigate('/transactions');
     } catch (err: any) {
-      setError(`Error al agregar transacción: ${err.message}`);
-      console.error(err);
+      console.error('Error adding transaction:', err);
+      setError(`Error al agregar transacción: ${err.message || 'Error desconocido'}`);
     } finally {
       setIsLoading(false);
     }
