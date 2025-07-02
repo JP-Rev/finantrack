@@ -10,6 +10,7 @@ import CategoriesPage from './components/pages/CategoriesPage';
 import StatisticsPage from './components/pages/StatisticsPage';
 import UtilitiesPage from './components/pages/UtilitiesPage';
 import AuthPage from './components/pages/AuthPage';
+import ResetPasswordPage from './components/pages/ResetPasswordPage';
 import LoadingSpinner from './components/common/LoadingSpinner';
 
 import { loadAndApplyInitialTheme } from './utils/themeUtils';
@@ -109,7 +110,14 @@ const App: React.FC = () => {
   }
 
   if (isAuthenticated === false) {
-    return <AuthPage />;
+    return (
+      <HashRouter>
+        <Routes>
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="*" element={<AuthPage />} />
+        </Routes>
+      </HashRouter>
+    );
   }
 
   return (

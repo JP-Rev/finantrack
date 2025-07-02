@@ -6,6 +6,7 @@ import { APP_NAME } from '../../constants';
 
 const AuthPage: React.FC = () => {
   const [isSignUp, setIsSignUp] = useState(false);
+  const [showResetPassword, setShowResetPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -42,6 +43,34 @@ const AuthPage: React.FC = () => {
     }
   };
 
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) {
+      setError('Por favor ingresa tu correo electrónico');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    setMessage('');
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/#/reset-password`
+      });
+      
+      if (error) throw error;
+      
+      setMessage('Se ha enviado un enlace de recuperación a tu correo electrónico. Revisa tu bandeja de entrada.');
+      setShowResetPassword(false);
+    } catch (error: any) {
+      console.error('Reset password error:', error);
+      setError(error.message || 'Error al enviar el correo de recuperación');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Verificar si Supabase está configurado
   const supabaseConfigured = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
 
@@ -73,6 +102,75 @@ VITE_SUPABASE_ANON_KEY=tu_clave_anonima`}
                 className="mt-4 px-4 py-2 bg-primary text-text-on-primary rounded-md hover:bg-primary-hover"
               >
                 Verificar Configuración
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (showResetPassword) {
+    return (
+      <div className="min-h-screen bg-secondary flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-primary mb-2">{APP_NAME}</h1>
+            <h2 className="text-2xl font-semibold text-text-principal">
+              Recuperar Contraseña
+            </h2>
+            <p className="mt-2 text-text-secondary">
+              Ingresa tu correo electrónico para recibir un enlace de recuperación
+            </p>
+          </div>
+
+          <div className="bg-card-bg p-8 rounded-lg shadow-xl">
+            {error && (
+              <div className="mb-4 p-3 bg-danger/10 text-danger rounded-md text-sm">
+                {error}
+              </div>
+            )}
+            
+            {message && (
+              <div className="mb-4 p-3 bg-success/10 text-success rounded-md text-sm">
+                {message}
+              </div>
+            )}
+
+            <form onSubmit={handleResetPassword} className="space-y-6">
+              <Input
+                label="Correo electrónico"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="tu@email.com"
+                disabled={loading}
+              />
+
+              <Button
+                type="submit"
+                variant="primary"
+                className="w-full"
+                isLoading={loading}
+                disabled={loading}
+              >
+                Enviar enlace de recuperación
+              </Button>
+            </form>
+
+            <div className="mt-6 text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowResetPassword(false);
+                  setError('');
+                  setMessage('');
+                }}
+                className="text-primary hover:text-primary-hover font-medium"
+                disabled={loading}
+              >
+                ← Volver al inicio de sesión
               </button>
             </div>
           </div>
@@ -143,22 +241,41 @@ VITE_SUPABASE_ANON_KEY=tu_clave_anonima`}
             </Button>
           </form>
 
-          <div className="mt-6 text-center">
-            <button
-              type="button"
-              onClick={() => {
-                setIsSignUp(!isSignUp);
-                setError('');
-                setMessage('');
-              }}
-              className="text-primary hover:text-primary-hover font-medium"
-              disabled={loading}
-            >
-              {isSignUp 
-                ? '¿Ya tienes cuenta? Inicia sesión' 
-                : '¿No tienes cuenta? Regístrate'
-              }
-            </button>
+          <div className="mt-6 space-y-4">
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSignUp(!isSignUp);
+                  setError('');
+                  setMessage('');
+                }}
+                className="text-primary hover:text-primary-hover font-medium"
+                disabled={loading}
+              >
+                {isSignUp 
+                  ? '¿Ya tienes cuenta? Inicia sesión' 
+                  : '¿No tienes cuenta? Regístrate'
+                }
+              </button>
+            </div>
+
+            {!isSignUp && (
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowResetPassword(true);
+                    setError('');
+                    setMessage('');
+                  }}
+                  className="text-text-secondary hover:text-primary text-sm"
+                  disabled={loading}
+                >
+                  ¿Olvidaste tu contraseña?
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
