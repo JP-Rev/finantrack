@@ -7,6 +7,8 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 console.log('Supabase URL:', supabaseUrl ? 'Set' : 'Missing');
 console.log('Supabase Key:', supabaseAnonKey ? 'Set' : 'Missing');
 
+let supabase: any;
+
 if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Missing Supabase environment variables');
   console.error('VITE_SUPABASE_URL:', supabaseUrl);
@@ -29,7 +31,9 @@ if (!supabaseUrl || !supabaseAnonKey) {
     }
   };
   
-  export const supabase = mockClient as any;
+  supabase = mockClient;
 } else {
-  export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+  supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
 }
+
+export { supabase };
