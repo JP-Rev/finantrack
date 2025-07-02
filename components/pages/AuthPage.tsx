@@ -109,7 +109,7 @@ const AuthPage: React.FC = () => {
       
       if (error) throw error;
       
-      setMessage('Se ha enviado un enlace de recuperación a tu correo electrónico. Revisa tu bandeja de entrada.');
+      setMessage('Se ha enviado un enlace de recuperación a tu correo electrónico. Revisa tu bandeja de entrada y sigue las instrucciones.');
       setShowResetPassword(false);
       
       // Start cooldown after successful request
@@ -118,9 +118,15 @@ const AuthPage: React.FC = () => {
       console.error('Reset password error:', error);
       
       // Check if it's a rate limit error
-      if (error.message?.includes('10 seconds') || error.message?.includes('rate_limit')) {
+      if (error.message?.includes('10 seconds') || 
+          error.message?.includes('rate_limit') || 
+          error.message?.includes('email_send_rate_limit')) {
         setError('Has enviado demasiadas solicitudes. Espera un momento antes de intentar nuevamente.');
         startCooldown();
+      } else if (error.message?.includes('Invalid email')) {
+        setError('El correo electrónico ingresado no es válido.');
+      } else if (error.message?.includes('User not found')) {
+        setError('No existe una cuenta con este correo electrónico.');
       } else {
         setError(error.message || 'Error al enviar el correo de recuperación');
       }
