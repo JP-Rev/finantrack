@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import Button from '../common/Button';
 import Input from '../common/Input';
@@ -12,6 +12,49 @@ const AuthPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [cooldown, setCooldown] = useState(false);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
+  const cooldownTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const countdownTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      if (cooldownTimerRef.current) {
+        clearTimeout(cooldownTimerRef.current);
+      }
+      if (countdownTimerRef.current) {
+        clearInterval(countdownTimerRef.current);
+      }
+    };
+  }, []);
+
+  const startCooldown = () => {
+    setCooldown(true);
+    setCooldownSeconds(15);
+
+    // Start countdown timer
+    countdownTimerRef.current = setInterval(() => {
+      setCooldownSeconds((prev) => {
+        if (prev <= 1) {
+          if (countdownTimerRef.current) {
+            clearInterval(countdownTimerRef.current);
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    // Start cooldown timer
+    cooldownTimerRef.current = setTimeout(() => {
+      setCooldown(false);
+      setCooldownSeconds(0);
+      if (countdownTimerRef.current) {
+        clearInterval(countdownTimerRef.current);
+      }
+    }, 15000);
+  };
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,6 +93,11 @@ const AuthPage: React.FC = () => {
       return;
     }
 
+    if (cooldown) {
+      setError(`Debes esperar ${cooldownSeconds} segundos antes de intentar nuevamente`);
+      return;
+    }
+
     setLoading(true);
     setError('');
     setMessage('');
@@ -63,9 +111,19 @@ const AuthPage: React.FC = () => {
       
       setMessage('Se ha enviado un enlace de recuperación a tu correo electrónico. Revisa tu bandeja de entrada.');
       setShowResetPassword(false);
+      
+      // Start cooldown after successful request
+      startCooldown();
     } catch (error: any) {
       console.error('Reset password error:', error);
-      setError(error.message || 'Error al enviar el correo de recuperación');
+      
+      // Check if it's a rate limit error
+      if (error.message?.includes('10 seconds') || error.message?.includes('rate_limit')) {
+        setError('Has enviado demasiadas solicitudes. Espera un momento antes de intentar nuevamente.');
+        startCooldown();
+      } else {
+        setError(error.message || 'Error al enviar el correo de recuperación');
+      }
     } finally {
       setLoading(false);
     }
@@ -153,9 +211,12 @@ VITE_SUPABASE_ANON_KEY=tu_clave_anonima`}
                 variant="primary"
                 className="w-full"
                 isLoading={loading}
-                disabled={loading}
+                disabled={loading || cooldown}
               >
-                Enviar enlace de recuperación
+                {cooldown 
+                  ? `Espera ${cooldownSeconds}s` 
+                  : 'Enviar enlace de recuperación'
+                }
               </Button>
             </form>
 
