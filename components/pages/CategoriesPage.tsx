@@ -241,7 +241,7 @@ const CategoriesPage: React.FC = () => {
                   <Button size="sm" variant="ghost" className="text-primary hover:bg-primary/10" onClick={() => openEditCategoryModal(cat)} aria-label={`Editar categoría ${cat.name}`}><PencilSquareIcon className="h-4 w-4"/></Button>
                   <Button size="sm" variant="ghost" className="text-danger hover:bg-danger/10" onClick={() => deleteCategory(cat.id)} aria-label={`Eliminar categoría ${cat.name}`}><TrashIcon className="h-4 w-4"/></Button>
                   <Button size="sm" variant="primary" onClick={() => openNewSubcategoryModal(cat.id)}>
-                    <PlusCircleIcon className="h-4 w-4 mr-1 inline"/> Subcategoria
+                    <PlusCircleIcon className="h-4 w-4 mr-1 inline"/> Subs
                   </Button>
                 </div>
               </div>
